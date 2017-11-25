@@ -11,46 +11,48 @@ from enum import Enum
 
 class Box(object):
     def __init__(self, color, prob):
-        self.color = color
-        self.prob = prob
-        self.num_item = [0] * 4
+        self._color = color  # private
+        self.prob = prob  # public
+        self._num_item = [0] * 4  # private
 
     # public method
     def insert_item(self, type, num):
-        self.num_item.insert(type, num)
+        self._num_item.insert(type, num)
 
     # public method
     def get_item_num(self, type):
-        return self.num_item[type]
+        return self._num_item[type]
 
     # public method
     def get_total_items(self):
-        self.sum = 0
-        for num in self.num_item:
-            self.sum += num
-        return self.sum
+        self._sum = 0  # private
+        for num in self._num_item:
+            self._sum += num
+        return self._sum
 
 
 class ProbabilityCalculator(object):
     def __init__(self, Boxes):
-        self.boxes = Boxes
+        self._boxes = Boxes  # private
 
     # public method
     def get_item_probability(self, item_type):
-        self.item_prob = 0.0
-        for box in self.boxes:
-            self.item_prob += (box.get_item_num(item_type) /
-                               box.get_total_items()) * box.prob
+        self._item_prob = 0.0  # private
+        for box in self._boxes:
+            self._item_prob += (box.get_item_num(item_type) /
+                                box.get_total_items()) * box.prob
 
-        return self.item_prob
+        return self._item_prob
 
     # public method
     def get_conditional_probability_given_item(self, box, item_type):
-        self.prob_item_box = box.get_item_num(
+        # private
+        self._prob_item_box = box.get_item_num(
             item_type) / box.get_total_items()
-        self.prob_item = self.get_item_probability(item_type)
+        # private
+        self._prob_item = self.get_item_probability(item_type)
 
-        return (self.prob_item_box * box.prob) / self.prob_item
+        return (self._prob_item_box * box.prob) / self._prob_item
 
 
 """
@@ -61,7 +63,8 @@ Naming
 2. 하지만 실제로 Python에서 보호해 주지는 않음. 이는 개발자들이 보편적으로 따르는 관례.
 3. 클래스 외부에서 _가 붙은 속성에 접근하지 않는 것은 파이썬 프로그래머 사이에서 일종의 금기.
 REF. Fluent Python
-
+p.s Naming에 대한 세부사항은 아래링크 참조
+http://python.net/~goodger/projects/pycon/2007/idiomatic/handout.html#naming
 
 Under score
 1. 인터프리터(Interpreter)에서 마지막 값을 저장할 때
@@ -110,5 +113,5 @@ if __name__ is "__main__":
     calculator = ProbabilityCalculator(Boxes)
     print("Probability of selecting an apple: %f" %
           calculator.get_item_probability(Item.apple.value))
-    print("Probability that an item is from green box given the item is orange: %f"
-          % calculator.get_conditional_probability_given_item(green_box, Item.orange.value))
+    print("Probability that an item is from green box given the item is orange: %f" %
+          calculator.get_conditional_probability_given_item(green_box, Item.orange.value))
